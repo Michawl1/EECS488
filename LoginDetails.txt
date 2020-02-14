@@ -1,0 +1,4 @@
+ssh -x pi4.cwru.edu
+
+login: team24
+password: eecs488-team24
