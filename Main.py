@@ -23,7 +23,7 @@ while True:
     # Capture frame-by-frame
     ret, img = cap.read()
 
-    blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
+    blob = cv2.dnn.blobFromImage(img, 0.00392, (320, 320), (0, 0, 0), True, crop=False)
 
     net.setInput(blob)
     outs = net.forward(output_layers)
@@ -37,7 +37,7 @@ while True:
             scores = detection[5:]
             class_id = np.argmax(scores)
             confidence = scores[class_id]
-            if confidence > 0.5:
+            if confidence > 0.3:
                 # Object detected
                 center_x = int(detection[0] * width)
                 center_y = int(detection[1] * height)
