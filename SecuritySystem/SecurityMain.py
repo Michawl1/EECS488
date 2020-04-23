@@ -20,11 +20,6 @@ class SecuritySystem:
         self._state = None
         self._change_state(1)
 
-        try:
-            os.mkdir(constants.ImgPath)
-        except:
-            None
-
     def _get_cameras(self):
         """
         indexes every camera that open cv can see
@@ -47,8 +42,15 @@ class SecuritySystem:
         """
         gets an image from every camera available and saves it
         """
+        index = 0
         for camera in self._cameras:
-            return
+            ret, img = camera.read()
+            name = "{}{},{}.jpg".format(constants.ImgPath, index, time.time())
+            cv2.imwrite(name, img)
+            cv2.imshow("Image", img)
+            index += 1
+
+
 
     def _change_state(self, index):
         """
@@ -67,6 +69,7 @@ class SecuritySystem:
             if self._state["fps"] != 0 and (time.time() - start_time > 1.0 / self._state["fps"]):
                 start_time = time.time()
                 self._grab_image()
+                print("Frame")
 
 
 if __name__ == '__main__':

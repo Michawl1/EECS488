@@ -26,6 +26,6 @@ HighRes = {
 
 States = [NoRec, LowRes, MedRes, HighRes]
 
-ImgPath = "/Images"
+ImgPath = "/Images/"
 
 MaxCameras = 4
