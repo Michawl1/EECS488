@@ -21,3 +21,6 @@ class CommandSender:
     def send(self, _message):
         if self._connect_flag:
             self._socket.send(_message)
+
+    def get_connect_flag(self):
+        return self._connect_flag

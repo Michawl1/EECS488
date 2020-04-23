@@ -6,6 +6,8 @@ About: This is the main file for the security system gui
 import tkinter as tk
 import tkinter.ttk as ttk
 import Gui.Resources.constants as constants
+import Gui.TCPDataSender.CommandSender as CommandSender
+import Gui.Frames.connect as connect
 
 
 class SecuritySystemGui:
@@ -18,6 +20,8 @@ class SecuritySystemGui:
                             lambda: self._exit())
         self._root.minsize(500, 500)
         self._root.resizable(2560, 1440)
+
+        self._command_sender = CommandSender.CommandSender()
 
         self._control_frame()
         self._display_frame()
@@ -36,6 +40,7 @@ class SecuritySystemGui:
                            anchor='nw',
                            padx=2,
                            pady=2)
+        self._connect = connect.Connect(control_frame, 0, 0, self._command_sender)
 
     def _display_frame(self):
         """
