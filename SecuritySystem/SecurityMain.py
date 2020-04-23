@@ -13,6 +13,9 @@ import os
 class SecuritySystem:
     def __init__(self):
         self._active = True
+
+        os.makedirs(constants.ImgPath, exist_ok=True)
+
         self._camera_index = []
         self._cameras = []
         self._get_cameras()
@@ -45,12 +48,9 @@ class SecuritySystem:
         index = 0
         for camera in self._cameras:
             ret, img = camera.read()
-            name = "{}{},{}.jpg".format(constants.ImgPath, index, time.time())
+            name = "{}/{},{}.jpg".format(constants.ImgPath, index, time.time())
             cv2.imwrite(name, img)
-            cv2.imshow("Image", img)
             index += 1
-
-
 
     def _change_state(self, index):
         """

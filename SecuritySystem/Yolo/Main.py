@@ -26,6 +26,7 @@ class Main:
             cap.release()
             index += 1
 
+        print(arr)
         return arr
 
 
@@ -45,6 +46,10 @@ if __name__ == '__main__':
     colors = np.random.uniform(0, 255, size=(len(classes), 3))
 
     cap = cv2.VideoCapture(0)
+    print(cap)
+
+    cap.set(3, 320)
+    cap.set(4, 320)
 
     height = cap.get(4)
     width = cap.get(3)
@@ -53,7 +58,7 @@ if __name__ == '__main__':
         # Capture frame-by-frame
         ret, img = cap.read()
 
-        blob = cv2.dnn.blobFromImage(img, 0.00392, (320, 320), (0, 0, 0), True, crop=False)
+        blob = cv2.dnn.blobFromImage(img, 0.01, (224, 224), (0, 0, 0), True, crop=False)
 
         net.setInput(blob)
         outs = net.forward(output_layers)
@@ -89,9 +94,9 @@ if __name__ == '__main__':
             if i in indexes:
                 x, y, w, h = boxes[i]
                 label = str(classes[class_ids[i]])
-                color = colors[i]
-                cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
-                cv2.putText(img, label, (x, y + 30), font, 3, color, 3)
+                if (label == 'person'):
+                    color = colors[i]
+                    cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
 
         # Display the resulting frame
         cv2.imshow('frame', img)
