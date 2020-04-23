@@ -7,6 +7,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import Gui.Resources.constants as constants
 
+
 class SecuritySystemGui:
     def __init__(self):
         self._root = tk.Tk()
