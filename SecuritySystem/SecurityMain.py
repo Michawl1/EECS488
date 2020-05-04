@@ -5,14 +5,17 @@ About: This is the main file for the security system
 """
 
 import SecuritySystem.Resources.constants as constants
+import SecuritySystem.Alarm as alarm
 import cv2
 import time
 import os
+import threading
 
 
 class SecuritySystem:
     def __init__(self):
         self._active = True
+        self._alarm = alarm.Alarm()
 
         os.makedirs(constants.ImgPath, exist_ok=True)
 
@@ -20,8 +23,11 @@ class SecuritySystem:
         self._cameras = []
         self._get_cameras()
 
+        self._pass_img = None
+        self._yolo_thread = None
+
         self._state = None
-        self._change_state(1)
+        self._change_state(0)
 
     def _get_cameras(self):
         """
@@ -65,11 +71,32 @@ class SecuritySystem:
     def start(self):
         start_time = time.time()
 
+        print("starting security scanner")
+        self._yolo_thread = threading.Thread(target=yolo_frame_analyzer, args=(self._pass_img,))
+        self._yolo_thread.start()
+
+        # Super loop
         while self._active:
             if self._state["fps"] != 0 and (time.time() - start_time > 1.0 / self._state["fps"]):
                 start_time = time.time()
                 self._grab_image()
-                print("Frame")
+            if self._state == constants.HighRes:
+                self._alarm.alert()
+
+            if not self._yolo_thread.is_alive():
+                self._yolo_thread = threading.Thread(target=yolo_frame_analyzer, args=(self._pass_img,))
+                self._yolo_thread.start()
+
+
+def yolo_frame_analyzer(img):
+    """
+    takes an image and returns the percentage height of the largest (closets) person in the frame
+    :param img: the image to be processed
+    :return: a floating point representing the height of the largest (closest) person
+    """
+    print("thread start")
+    time.sleep(2)
+    print("thread end")
 
 
 if __name__ == '__main__':

@@ -51,6 +51,7 @@ for out in outs:
 
 indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
 print(indexes)
+
 font = cv2.FONT_HERSHEY_PLAIN
 for i in range(len(boxes)):
     if i in indexes:
