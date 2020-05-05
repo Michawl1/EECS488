@@ -35,7 +35,6 @@ if __name__ == '__main__':
 
     print(Main.get_all_cams())
 
-
     # Load Yolo
     net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
     classes = []
@@ -88,15 +87,30 @@ if __name__ == '__main__':
                     class_ids.append(class_id)
 
         indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
-        print(indexes)
         font = cv2.FONT_HERSHEY_PLAIN
+
+        max_height = -1
+
         for i in range(len(boxes)):
             if i in indexes:
                 x, y, w, h = boxes[i]
                 label = str(classes[class_ids[i]])
                 if (label == 'person'):
+                    if h > max_height:
+                        max_height = y
                     color = colors[i]
                     cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
+
+        print(max_height / height)
+
+        if (max_height / height) < 0.1:
+            print(3)
+        elif 0.1 <= (max_height / height) < 0.2:
+            print(2)
+        elif 0.2 <= (max_height / height) < 0.4:
+            print(1)
+        elif 0.4 <= (max_height / height):
+            print(0)
 
         # Display the resulting frame
         cv2.imshow('frame', img)

@@ -11,6 +11,7 @@ import cv2
 import time
 import os
 import threading
+from multiprocessing import Process
 
 
 class SecuritySystem:
@@ -48,6 +49,8 @@ class SecuritySystem:
             cap.release()
             index += 1
 
+        cv2.destroyAllWindows()
+
         for i in self._camera_index:
             self._cameras.append(cv2.VideoCapture(i))
 
@@ -84,7 +87,13 @@ class SecuritySystem:
         start_time = time.time()
 
         print("starting security scanner")
+        '''
         self._yolo_thread = threading.Thread(target=yolo_frame_analyzer, args=(
+            self._pass_img,
+            self._picture_analyzer,
+            self._state_num,))
+            '''
+        self._yolo_thread = Process(target=yolo_frame_analyzer, args=(
             self._pass_img,
             self._picture_analyzer,
             self._state_num,))
@@ -95,7 +104,7 @@ class SecuritySystem:
             if time.time() - start_time > 1.0 / self._state["fpspoll"]:
                 start_time = time.time()
                 imgs = self._grab_image()
-                self._pass_img = imgs[0]
+                # self._pass_img = imgs[0]
                 print(self._state_num)
 
                 if self._state_num[0] != 0:
@@ -105,11 +114,11 @@ class SecuritySystem:
                 self._alarm.alert()
 
             if not self._yolo_thread.is_alive():
-                self._yolo_thread = threading.Thread(target=yolo_frame_analyzer,
-                                                     args=(
-                                                         self._pass_img,
-                                                         self._picture_analyzer,
-                                                         self._state_num,))
+                self._yolo_thread = Process(target=yolo_frame_analyzer,
+                                            args=(
+                                                self._pass_img,
+                                                self._picture_analyzer,
+                                                self._state_num,))
                 self._change_state(self._state_num[0])
                 self._yolo_thread.start()
 
@@ -119,8 +128,9 @@ def yolo_frame_analyzer(img, picture_analyzer, state_num):
     takes an image and returns the percentage height of the largest (closets) person in the frame
     :param img: the image to be processed
     """
-    # print("thread start")
+    print("thread start")
 
+    '''
     screenspace = picture_analyzer.process(img)
 
     if screenspace < 0.25:
@@ -131,8 +141,10 @@ def yolo_frame_analyzer(img, picture_analyzer, state_num):
         state_num[0] = 2
     elif screenspace >= 0.75:
         state_num[0] = 3
+        '''
+    time.sleep(1)
 
-    # print("thread end")
+    print("thread end")
 
 
 if __name__ == '__main__':
