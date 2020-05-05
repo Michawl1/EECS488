@@ -30,8 +30,9 @@ class SecuritySystem:
         self._get_cameras()
 
         self._state = None
-        self._state_num = [0]
-        self._change_state(self._state_num[0])
+        self._state_num = 0
+        self._state_per_cam = []
+        self._change_state(self._state_num)
 
     @staticmethod
     def _make_dirs():
@@ -42,6 +43,15 @@ class SecuritySystem:
         os.makedirs(constants.ImgPath1, exist_ok=True)
         os.makedirs(constants.ImgPath2, exist_ok=True)
         os.makedirs(constants.ImgPath3, exist_ok=True)
+
+    @staticmethod
+    def _max_state(state_nums):
+        temp = -1
+        for num in state_nums:
+            if num > temp:
+                temp = num
+
+        return temp
 
     def _get_cameras(self):
         """
@@ -62,6 +72,7 @@ class SecuritySystem:
 
         for i in self._camera_index:
             self._cameras.append(cv2.VideoCapture(i))
+            self._state_per_cam.append(0)
 
     def _grab_image(self):
         """
@@ -85,7 +96,7 @@ class SecuritySystem:
         """
         index = 0
         for img in imgs:
-            name = "{}/{},{}.jpg".format(constants.StateImagePaths[self._state_num[0] - 1], index, time.time())
+            name = "{}/{},{}.jpg".format(constants.StateImagePaths[self._state_num - 1], index, time.time())
             cv2.imwrite(name, img)
             index += 1
 
@@ -102,13 +113,14 @@ class SecuritySystem:
 
         print("starting security scanner")
 
+        analyze_index = 0
+
         self._yolo_thread = threading.Thread(target=yolo_frame_analyzer, args=(
             self._pass_img,
             self._picture_analyzer,
-            self._state_num,))
+            self._state_per_cam,
+            analyze_index))
         self._yolo_thread.start()
-
-        analyze_index = 0
 
         # get starting times so we can get our rates
         record_time = time.time()
@@ -119,13 +131,14 @@ class SecuritySystem:
 
             # get images at the rate dictated by the different states
             if time.time() - record_time > 1.0 / self._state["fpspoll"]:
-                self._change_state(self._state_num[0])
+                self._state_num = SecuritySystem._max_state(self._state_per_cam)
+                self._change_state(self._state_num)
                 record_time = time.time()
                 imgs = self._grab_image()
                 self._pass_img = imgs[analyze_index % len(self._cameras)]
-                print(self._state_num)
+                print(self._state_per_cam)
 
-                if self._state_num[0] != 0:
+                if self._state_num != 0:
                     self._write_image(imgs)
 
             # alarm
@@ -139,12 +152,13 @@ class SecuritySystem:
                                                      args=(
                                                          self._pass_img,
                                                          self._picture_analyzer,
-                                                         self._state_num,))
+                                                         self._state_per_cam,
+                                                         analyze_index % len(self._cameras)))
                 analyze_index += 1
                 self._yolo_thread.start()
 
 
-def yolo_frame_analyzer(img, picture_analyzer, state_num):
+def yolo_frame_analyzer(img, picture_analyzer, state_per_cam, index):
     """
     Takes an image and sees if there is a person in the frame
     This is intended to be run as a separate thread within the main super loop
@@ -155,13 +169,13 @@ def yolo_frame_analyzer(img, picture_analyzer, state_num):
     screenspace = picture_analyzer.process(img)
 
     if screenspace < 0.05:
-        state_num[0] = 0
+        state_per_cam[index] = 0
     elif 0.05 <= screenspace < 0.3:
-        state_num[0] = 1
+        state_per_cam[index] = 1
     elif 0.3 <= screenspace < 0.7:
-        state_num[0] = 2
+        state_per_cam[index] = 2
     elif screenspace >= 0.7:
-        state_num[0] = 3
+        state_per_cam[index] = 3
 
 
 if __name__ == '__main__':
