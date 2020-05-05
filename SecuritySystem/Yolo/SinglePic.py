@@ -1,3 +1,9 @@
+"""
+Date: 4/23/2020
+About: This is a test file that can be used to determine if the security system proper will work on the device
+       if this code can run then the security system should work
+"""
+
 import time
 
 import cv2

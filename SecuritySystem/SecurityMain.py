@@ -23,10 +23,7 @@ class SecuritySystem:
         self._yolo_thread = None
         self._picture_analyzer = PictureAnalyzer.PictureAnalyzer()
 
-        os.makedirs(constants.ImgPath, exist_ok=True)
-        os.makedirs(constants.ImgPath1, exist_ok=True)
-        os.makedirs(constants.ImgPath2, exist_ok=True)
-        os.makedirs(constants.ImgPath3, exist_ok=True)
+        SecuritySystem._make_dirs()
 
         self._camera_index = []
         self._cameras = []
@@ -36,9 +33,19 @@ class SecuritySystem:
         self._state_num = [0]
         self._change_state(self._state_num[0])
 
+    @staticmethod
+    def _make_dirs():
+        """
+        makes the directories to put the images into
+        """
+        os.makedirs(constants.ImgPath, exist_ok=True)
+        os.makedirs(constants.ImgPath1, exist_ok=True)
+        os.makedirs(constants.ImgPath2, exist_ok=True)
+        os.makedirs(constants.ImgPath3, exist_ok=True)
+
     def _get_cameras(self):
         """
-        indexes every camera that open cv can see
+        indexes every camera that open cv can see and puts them into self._cameras as a list
         """
         index = 0
 
@@ -58,7 +65,8 @@ class SecuritySystem:
 
     def _grab_image(self):
         """
-        gets an image from every camera available and saves it
+        gets an image from every camera available
+        :returns a list of images, one from each camera
         """
         imgs = []
         for camera in self._cameras:
@@ -71,6 +79,10 @@ class SecuritySystem:
         return imgs
 
     def _write_image(self, imgs):
+        """
+        Takes a list of images and writes them to a directory dictated by self._state_num
+        :param imgs: list of images capture
+        """
         index = 0
         for img in imgs:
             name = "{}/{},{}.jpg".format(constants.StateImagePaths[self._state_num[0] - 1], index, time.time())
@@ -84,7 +96,9 @@ class SecuritySystem:
         self._state = constants.States[index]
 
     def start(self):
-        start_time = time.time()
+        """
+        Main super loop of the program
+        """
 
         print("starting security scanner")
 
@@ -96,11 +110,17 @@ class SecuritySystem:
 
         analyze_index = 0
 
+        # get starting times so we can get our rates
+        record_time = time.time()
+        alarm_time = time.time()
+
         # Super loop
         while self._active:
-            if time.time() - start_time > 1.0 / self._state["fpspoll"]:
+
+            # get images at the rate dictated by the different states
+            if time.time() - record_time > 1.0 / self._state["fpspoll"]:
                 self._change_state(self._state_num[0])
-                start_time = time.time()
+                record_time = time.time()
                 imgs = self._grab_image()
                 self._pass_img = imgs[analyze_index % len(self._cameras)]
                 print(self._state_num)
@@ -108,9 +128,12 @@ class SecuritySystem:
                 if self._state_num[0] != 0:
                     self._write_image(imgs)
 
-            if self._state == constants.HighRes:
+            # alarm
+            if self._state == constants.HighRes and time.time() - alarm_time > 1.0:
                 self._alarm.alert()
 
+            # runs yolo image recognition on a frame, updates the state num and re runs the thread on a new image as
+            # soon as this one is done
             if not self._yolo_thread.is_alive():
                 self._yolo_thread = threading.Thread(target=yolo_frame_analyzer,
                                                      args=(
@@ -123,11 +146,13 @@ class SecuritySystem:
 
 def yolo_frame_analyzer(img, picture_analyzer, state_num):
     """
-    takes an image and returns the percentage height of the largest (closets) person in the frame
-    :param img: the image to be processed
+    Takes an image and sees if there is a person in the frame
+    This is intended to be run as a separate thread within the main super loop
+    :param img: the image to scan for a person
+    :param picture_analyzer: a PictureAnalyzer object used to run the yolo image recognition algorithm
+    :param state_num: an array that holds the number of what state the system is in
     """
     screenspace = picture_analyzer.process(img)
-    print(screenspace)
 
     if screenspace < 0.05:
         state_num[0] = 0

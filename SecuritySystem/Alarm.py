@@ -10,4 +10,7 @@ class Alarm:
         None
 
     def alert(self):
+        """
+        This is where gpio code would go for the alarms
+        """
         None
