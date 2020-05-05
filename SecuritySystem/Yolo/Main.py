@@ -4,6 +4,8 @@ Author: Michael Thompson
 
 import cv2
 import numpy as np
+import threading
+import time
 
 
 class Main:
@@ -30,6 +32,12 @@ class Main:
         return arr
 
 
+def yolo_frame_analyzer():
+    while True:
+        print("thread")
+        time.sleep(1)
+
+
 if __name__ == '__main__':
     print("hello world")
 
@@ -52,6 +60,9 @@ if __name__ == '__main__':
 
     height = cap.get(4)
     width = cap.get(3)
+
+    t = threading.Thread(target=yolo_frame_analyzer, args=())
+    t.start()
 
     while True:
         # Capture frame-by-frame

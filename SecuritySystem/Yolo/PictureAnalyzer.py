@@ -62,7 +62,7 @@ class PictureAnalyzer:
             if i in indexes:
                 x, y, w, h = boxes[i]
                 label = str(self._classes[class_ids[i]])
-                if label == 'person' and y > largest_person_height:
-                    largest_person_height = y
+                if label == 'person' and h > largest_person_height:
+                    largest_person_height = h
 
         return largest_person_height / height

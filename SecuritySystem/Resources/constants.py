@@ -31,5 +31,10 @@ HighRes = {
 States = [NoRec, LowRes, MedRes, HighRes]
 
 ImgPath = "./Image"
+ImgPath1 = "./Image/State1"
+ImgPath2 = "./Image/State2"
+ImgPath3 = "./Image/State3"
+
+StateImagePaths = [ImgPath1, ImgPath2, ImgPath3]
 
 MaxCameras = 4
