@@ -25,6 +25,8 @@ blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), True, crop=Fal
 net.setInput(blob)
 outs = net.forward(output_layers)
 
+end = time.time()
+
 # Showing informations on the screen
 class_ids = []
 confidences = []
@@ -62,7 +64,7 @@ for i in range(len(boxes)):
             cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
             # cv2.putText(img, label, (x, y + 30), font, 3, color, 3)
 
-end = time.time()
+
 
 print(end - start)
 cv2.imwrite("test1.jpg", img)
