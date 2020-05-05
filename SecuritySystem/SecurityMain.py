@@ -94,13 +94,15 @@ class SecuritySystem:
             self._state_num,))
         self._yolo_thread.start()
 
+        analyze_index = 0
+
         # Super loop
         while self._active:
             if time.time() - start_time > 1.0 / self._state["fpspoll"]:
                 self._change_state(self._state_num[0])
                 start_time = time.time()
                 imgs = self._grab_image()
-                self._pass_img = imgs[0]
+                self._pass_img = imgs[analyze_index % len(self._cameras)]
                 print(self._state_num)
 
                 if self._state_num[0] != 0:
@@ -115,6 +117,7 @@ class SecuritySystem:
                                                          self._pass_img,
                                                          self._picture_analyzer,
                                                          self._state_num,))
+                analyze_index += 1
                 self._yolo_thread.start()
 
 
