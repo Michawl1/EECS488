@@ -65,4 +65,4 @@ class PictureAnalyzer:
                 if label == 'person' and y > largest_person_height:
                     largest_person_height = y
 
-        return y / height
+        return largest_person_height / height
