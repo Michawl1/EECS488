@@ -131,8 +131,15 @@ class SecuritySystem:
             False))
         self._alarm_sound_thread.start()
 
+        self._alarm_mail_thread = threading.Thread(target=alarm_thread_sound, args=(
+            self._alarm,
+            False))
+        self._alarm_mail_thread.start()
+
         # get starting times so we can get our rates
         record_time = time.time()
+
+        sent_mail_flag = False
 
         # Super loop
         while self._active:
@@ -149,12 +156,23 @@ class SecuritySystem:
                 if self._state_num != 0:
                     self._write_image(imgs)
 
-            # alarm
+                if self._state_num == 0:
+                    sent_mail_flag = False
+
+            # alarm sound
             if self._state_num == 3 and not self._alarm_sound_thread.is_alive():
                 self._alarm_sound_thread = threading.Thread(target=alarm_thread_sound, args=(
                     self._alarm,
                     True))
                 self._alarm_sound_thread.start()
+                
+            # alarm mail
+            if self._state_num == 3 and not self._alarm_mail_thread.is_alive() and not sent_mail_flag:
+                self._alarm_mail_thread = threading.Thread(target=alarm_thread_sound, args=(
+                    self._alarm,
+                    True))
+                sent_mail_flag = True
+                self._alarm_mail_thread.start()
 
             # runs yolo image recognition on a frame, updates the state num and re runs the thread on a new image as
             # soon as this one is done
@@ -189,8 +207,9 @@ def yolo_frame_analyzer(img, picture_analyzer, state_per_cam, index):
         state_per_cam[index] = 3
 
 
-def alarm_thread_mail(alarm_mailer):
-    alarm_mailer.alert_mail()
+def alarm_thread_mail(alarm_mailer, flag):
+    if flag:
+        alarm_mailer.alert_mail()
 
 
 def alarm_thread_sound(alarm_sounder, flag):
