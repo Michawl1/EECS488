@@ -9,24 +9,25 @@ import SecuritySystem.Resources.constants as constants
 
 
 class Alarm:
-    def __init__(self):
-        self._mailing_list = []
-        self._parse_mailing_list()
-
-        self._yag = yagmail.SMTP("limunan96@gmail.com", "fhhiacwrumyjvoei")
-
-    def _parse_mailing_list(self):
+    @ staticmethod
+    def _parse_mailing_list():
+        mailing_list = []
         with open(constants.MailPath) as f:
             line = f.readline()
             while line:
-                self._mailing_list.append(line.strip())
+                mailing_list.append(line.strip())
                 line = f.readline()
 
-    def alert_mail(self):
-        for receiver in self._mailing_list:
+        return mailing_list
+
+    @staticmethod
+    def alert_mail():
+        yag = yagmail.SMTP("limunan96@gmail.com", "fhhiacwrumyjvoei")
+
+        for receiver in Alarm._parse_mailing_list():
             print(receiver)
             """
-            self._yag.send(
+            yag.send(
                 to=receiver,
                 subject=constants.MailSubject,
                 contents=constants.MailBody
