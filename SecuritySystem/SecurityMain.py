@@ -17,6 +17,7 @@ class SecuritySystem:
     def __init__(self):
         self._active = True
         self._alarm = alarm.Alarm()
+        self._alarm.alert()
 
         # yolo thread objects
         self._pass_img = None
@@ -28,6 +29,9 @@ class SecuritySystem:
         self._camera_index = []
         self._cameras = []
         self._get_cameras()
+
+        if len(self._cameras) < 1:
+            exit(1)
 
         self._state = None
         self._state_num = 0
@@ -82,10 +86,8 @@ class SecuritySystem:
         imgs = []
         for camera in self._cameras:
             ret, img = camera.read()
+            img = cv2.resize(img, (self._state["width"], self._state["height"]), interpolation=cv2.INTER_AREA)
             imgs.append(img)
-
-        for i in range(0, len(imgs)):
-            imgs[i] = cv2.resize(imgs[i], (self._state["width"], self._state["height"]), interpolation=cv2.INTER_AREA)
 
         return imgs
 

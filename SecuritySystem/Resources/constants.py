@@ -38,3 +38,9 @@ ImgPath3 = "./Image/State3"
 StateImagePaths = [ImgPath1, ImgPath2, ImgPath3]
 
 MaxCameras = 4
+
+MailPath = "./Resources/mailinglist.txt"
+MailSubject = "INTRUDER ALERT"
+MailBody = "The system has detected a person within a zone 3 boundary of the warehouse"
+
+AlarmSound = "./Resources/alarm.wav"
