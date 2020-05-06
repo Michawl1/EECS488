@@ -22,10 +22,7 @@ class Alarm:
                 self._mailing_list.append(line.strip())
                 line = f.readline()
 
-    def alert(self):
-        """
-        This is where gpio code would go for the alarms
-        """
+    def alert_mail(self):
         for receiver in self._mailing_list:
             self._yag.send(
                 to=receiver,
@@ -33,3 +30,6 @@ class Alarm:
                 contents=constants.MailBody
             )
 
+    @staticmethod
+    def alert_sound():
+        playsound.playsound(constants.AlarmSound)
