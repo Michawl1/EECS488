@@ -9,7 +9,7 @@ import SecuritySystem.Resources.constants as constants
 
 
 class Alarm:
-    @ staticmethod
+    @staticmethod
     def _parse_mailing_list():
         mailing_list = []
         with open(constants.MailPath) as f:
@@ -26,13 +26,11 @@ class Alarm:
 
         for receiver in Alarm._parse_mailing_list():
             print(receiver)
-            """
             yag.send(
                 to=receiver,
                 subject=constants.MailSubject,
                 contents=constants.MailBody
             )
-            """
 
     @staticmethod
     def alert_sound():
