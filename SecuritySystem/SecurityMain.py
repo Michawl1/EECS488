@@ -129,6 +129,7 @@ class SecuritySystem:
         self._alarm_sound_thread = threading.Thread(target=alarm_thread_sound, args=(
             self._alarm,
             False))
+        self._alarm_sound_thread.start()
 
         # get starting times so we can get our rates
         record_time = time.time()
@@ -149,10 +150,11 @@ class SecuritySystem:
                     self._write_image(imgs)
 
             # alarm
-            if self._state is constants.HighRes and not self._alarm_sound_thread.is_alive():
+            if self._state_num == 3 and not self._alarm_sound_thread.is_alive():
                 self._alarm_sound_thread = threading.Thread(target=alarm_thread_sound, args=(
                     self._alarm,
                     True))
+                self._alarm_sound_thread.start()
 
             # runs yolo image recognition on a frame, updates the state num and re runs the thread on a new image as
             # soon as this one is done
