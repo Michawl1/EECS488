@@ -20,7 +20,6 @@ class SecuritySystem:
         self._alarm = alarm.Alarm()
         self._alarm_mail_thread = None
         self._alarm_sound_thread = None
-        self._alarm.alert_sound()
 
         # yolo and thread objects
         self._pass_img = None
@@ -31,7 +30,6 @@ class SecuritySystem:
 
         self._camera_index = []
         self._cameras = []
-        self._get_cameras()
 
         if len(self._cameras) < 1:
             exit(1)
@@ -40,6 +38,7 @@ class SecuritySystem:
         self._state_num = 0
         self._state_per_cam = []
         self._change_state(self._state_num)
+        self._get_cameras()
 
     @staticmethod
     def _make_dirs():
