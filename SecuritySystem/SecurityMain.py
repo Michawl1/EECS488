@@ -147,11 +147,13 @@ class SecuritySystem:
             # get images at the rate dictated by the different states
             if time.time() - record_time > 1.0 / self._state["fpspoll"]:
                 self._state_num = SecuritySystem._max_state(self._state_per_cam)
+
                 self._change_state(self._state_num)
-                record_time = time.time()
                 imgs = self._grab_image()
                 self._pass_img = imgs[analyze_index % len(self._cameras)]
                 print(self._state_per_cam)
+                
+                record_time = time.time()
 
                 if self._state_num != 0:
                     self._write_image(imgs)
@@ -165,7 +167,7 @@ class SecuritySystem:
                     self._alarm,
                     True))
                 self._alarm_sound_thread.start()
-                
+
             # alarm mail
             if self._state_num == 3 and not self._alarm_mail_thread.is_alive() and not sent_mail_flag:
                 self._alarm_mail_thread = threading.Thread(target=alarm_thread_sound, args=(

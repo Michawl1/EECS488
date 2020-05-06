@@ -24,11 +24,14 @@ class Alarm:
 
     def alert_mail(self):
         for receiver in self._mailing_list:
+            print(receiver)
+            """
             self._yag.send(
                 to=receiver,
                 subject=constants.MailSubject,
                 contents=constants.MailBody
             )
+            """
 
     @staticmethod
     def alert_sound():
