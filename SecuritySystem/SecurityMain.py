@@ -170,6 +170,7 @@ class SecuritySystem:
 
             # alarm mail
             if self._state_num == 3 and not self._alarm_mail_thread.is_alive() and not sent_mail_flag:
+                print("mailing")
                 self._alarm_mail_thread = threading.Thread(target=alarm_thread_sound, args=(
                     self._alarm,
                     True))
